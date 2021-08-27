@@ -44,70 +44,68 @@ class ServiceNowConnector {
 
 
   /**
-  * @memberof ServiceNowConnector
-  * @method constructUri
-  * @summary Builds URL for API calls
-  * @description Build and return the proper URI by appending an optionally passed
-  *   [URL query string]{@link https://en.wikipedia.org/wiki/Query_string}.
-  *
-  * @param {string} serviceNowTable - The table target of the ServiceNow table API.
-  * @param {string} [query] - Optional URL query string.
-  *
-  * @return {string} ServiceNow URL
-  */
+   * @memberof ServiceNowConnector
+   * @method constructUri
+   * @description Build and return the proper URI by appending an optionally passed
+   *   [URL query string]{@link https://en.wikipedia.org/wiki/Query_string}.
+   *
+   * @param {string} serviceNowTable - The table target of the ServiceNow table API.
+   * @param {string} [query] - Optional URL query string.
+   *
+   * @return {string} ServiceNow URL
+   */
   constructUri(serviceNowTable, query = null) {
-   let uri = `/api/now/table/${this.options.serviceNowTable}`;
-   if (query) {
-     uri = uri + '?' + query;
-   }
-   return uri;
- }
-
+    let uri = `/api/now/table/${this.options.serviceNowTable}`;
+    if (query) {
+      uri = uri + '?' + query;
+    }
+    return uri;
+  }
 
 
   /**
-  * @memberof ServiceNowConnector
-  * @method isHibernating
-  * @summary Checks for hibernating instance
-  * @description Checks if request function responded with evidence of
-  *   a hibernating ServiceNow instance.
-  *
-  * @param {object} response - The response argument passed by the request function in its callback.
-  *
-  * @return {boolean} Returns true if instance is hibernating. Otherwise returns false.
-  */
- isHibernating(response) {
-   return response.body.includes('Instance Hibernating page')
-   && response.body.includes('<html>')
-   && response.statusCode === 200;
- }
+   * @memberof ServiceNowConnector
+   * @method isHibernating
+   * @description Checks if request function responded with evidence of
+   *   a hibernating ServiceNow instance.
+   *
+   * @param {object} response - The response argument passed by the request function in its callback.
+   *
+   * @return {boolean} Returns true if instance is hibernating. Otherwise returns false.
+   */
+  isHibernating(response) {
+    return response.body.includes('Instance Hibernating page')
+    && response.body.includes('<html>')
+    && response.statusCode === 200;
+  }
 
- /**
- * @memberof ServiceNowConnector
- * @method processRequestResults
- * @summary Return API response or error message
- * @description Inspect ServiceNow API response for an error, bad response code, or
- *   a hibernating instance. If any of those conditions are detected, return an error.
- *   Else return the API's response.
- *
- * @param {error} error - The error argument passed by the request function in its callback.
- * @param {object} response - The response argument passed by the request function in its callback.
- * @param {string} body - The HTML body argument passed by the request function in its callback.
- * @param {iapCallback} callback - Callback a function.
- * @param {(object|string)} callback.data - The API's response. Will be an object if sunnyday path.
- *   Will be HTML text if hibernating instance.
- * @param {error} callback.error - The error property of callback.
- */
- processRequestResults(error, response, body, callback) {
-  // Initialize return arguments for callback
-  let callbackData = null;
-  let callbackError = null;
 
- /**
- * Process ServiceNow error, response and body.
- * Check error and response code to make sure
- * response is good.
- */
+  /**
+   * @memberof ServiceNowConnector
+   * @method processRequestResults
+   * @description Inspect ServiceNow API response for an error, bad response code, or
+   *   a hibernating instance. If any of those conditions are detected, return an error.
+   *   Else return the API's response.
+   *
+   * @param {error} error - The error argument passed by the request function in its callback.
+   * @param {object} response - The response argument passed by the request function in its callback.
+   * @param {string} body - The HTML body argument passed by the request function in its callback.
+   * @param {iapCallback} callback - Callback a function.
+   * @param {(object|string)} callback.data - The API's response. Will be an object if sunnyday path.
+   *   Will be HTML text if hibernating instance.
+   * @param {error} callback.error - The error property of callback.
+   */
+  processRequestResults(error, response, body, callback) {
+    /**
+     * You must build the contents of this function.
+     * Study your package and note which parts of the get()
+     * and post() functions evaluate and respond to data
+     * and/or errors the request() function returns.
+     * This function must not check for a hibernating instance;
+     * it must call function isHibernating.
+     */
+    let callbackData = null;
+    let callbackError = null;
     if (error) {
         console.error('Error present.');
         callbackError = error;
@@ -115,79 +113,58 @@ class ServiceNowConnector {
         console.error('Bad response code.');
         callbackError = response;
     } else if (this.isHibernating(response)) {
-        callbackError = 'Service Now instance is hibernating';
+        callbackError = 'ServiceNow instance is hibernating';
         console.error(callbackError);
     } else {
         callbackData = response;
     }
-    return callback(callbackData, callbackError);
- }
- 
-/**
- * @memberof ServiceNowConnector
- * @method sendRequest
- * @summary Sends API request
- * @description Builds final options argument for request function
- *   from global const options and parameter callOptions.
- *   Executes request call, then verifies response.
- *
- * @param {object} callOptions - Passed call options.
- * @param {string} callOptions.query - URL query string.
- * @param {string} callOptions.serviceNowTable - The table target of the ServiceNow table API.
- * @param {string} callOptions.method - HTTP API request method.
- * @param {iapCallback} callback - Callback a function.
- * @param {(object|string)} callback.data - The API's response. Will be an object if sunnyday path.
- *   Will be HTML text if hibernating instance.
- * @param {error} callback.error - The error property of callback.
- */
- sendRequest(callOptions, callback) {
-  // Initialize return arguments for callback
-  let uri;
-  if (callOptions.query)
-    uri = this.constructUri(this.options.serviceNowTable, callOptions.query);
-  else
-    uri = this.constructUri(this.options.serviceNowTable);
+    return callback(callbackData, callbackError);        
+  }
+
+
   /**
-   * You must build the requestOptions object.
-   * This is not a simple copy/paste of the requestOptions object
-   * from the previous lab. There should be no
-   * hardcoded values.
+   * @memberof ServiceNowConnector
+   * @method sendRequest
+   * @description Builds final options argument for request function
+   *   from global const options and parameter callOptions.
+   *   Executes request call, then verifies response.
+   *
+   * @param {object} callOptions - Passed call options.
+   * @param {string} callOptions.query - URL query string.
+   * @param {string} callOptions.serviceNowTable - The table target of the ServiceNow table API.
+   * @param {string} callOptions.method - HTTP API request method.
+   * @param {iapCallback} callback - Callback a function.
+   * @param {(object|string)} callback.data - The API's response. Will be an object if sunnyday path.
+   *   Will be HTML text if hibernating instance.
+   * @param {error} callback.error - The error property of callback.
    */
-  const requestOptions = {
-    method: callOptions.method,
-    auth: {
-      user: this.options.username,
-      pass: this.options.password,
-    },
-    baseUrl: this.options.url,
-    uri: uri,
-  };
-   request(requestOptions, (error, response, body) => {
-     this.processRequestResults(error, response, body, (processedResults, processedError) => callback(processedResults, processedError));
-   });
+  sendRequest(callOptions, callback) {
+    // Initialize return arguments for callback
+    let uri;
+    if (callOptions.query)
+      uri = this.constructUri(this.options.serviceNowTable, callOptions.query);
+    else
+      uri = this.constructUri(this.options.serviceNowTable);
+    /**
+     * You must build the requestOptions object.
+     * This is not a simple copy/paste of the requestOptions object
+     * from the previous lab. There should be no
+     * hardcoded values.
+     */
+    const requestOptions = {
+        method: callOptions.method,
+        auth: {
+            user: this.options.username,
+            pass: this.options.password,
+        },
+        baseUrl: this.options.url,
+        'uri': uri,
+    };
+    request(requestOptions, (error, response, body) => {
+      this.processRequestResults(error, response, body, (processedResults, processedError) => callback(processedResults, processedError));
+    });
+  }
 
-
-
-
-  /**
- * @memberof ServiceNowConnector
- * @method post
- * @summary Calls ServiceNow POST API
- * @description Call the ServiceNow POST API. Sets the API call's method,
- *   then calls sendRequest().
- *
- * @param {object} callOptions - Passed call options.
- * @param {string} callOptions.serviceNowTable - The table target of the ServiceNow table API.
- * @param {iapCallback} callback - Callback a function.
- * @param {(object|string)} callback.data - The API's response. Will be an object if sunnyday path.
- *   Will be HTML text if hibernating instance.
- * @param {error} callback.error - The error property of callback.
- */
- post(callOptions, callback) {
-  callOptions.method = 'POST';   
-  this.sendRequest(callOptions, (results, error) => callback(results, error));
- }
-}
 
   /**
    * @memberof ServiceNowConnector
@@ -204,10 +181,34 @@ class ServiceNowConnector {
    * @param {error} callback.error - The error property of callback.
    */
   get(callback) {
-    let getCallOptions = { ...this.options };
+    let getCallOptions = this.options;
     getCallOptions.method = 'GET';
-    getCallOptions.query = 'sysparm_limit=1';
+    getCallOptions.query = 'sysparm_limit=2';
     this.sendRequest(getCallOptions, (results, error) => callback(results, error));
   }
+
+
+  /**
+   * @memberof ServiceNowConnector
+   * @method post
+   * @description Call the ServiceNow POST API. Sets the API call's method,
+   *   then calls this.sendRequest().
+   *
+   * @param {object} callOptions - Passed call options.
+   * @param {string} callOptions.serviceNowTable - The table target of the ServiceNow table API.
+   * @param {iapCallback} callback - Callback a function.
+   * @param {(object|string)} callback.data - The API's response. Will be an object if sunnyday path.
+   *   Will be HTML text if hibernating instance.
+   * @param {error} callback.error - The error property of callback.
+   */
+  post(callOptions, callback) {
+    // let postCallOptions = this.options;
+    callOptions.method = 'POST';
+    // postCallOptions.query = null;
+    this.sendRequest(callOptions, (results, error) => callback(results, error));
+  }
+
+
+}
 
 module.exports = ServiceNowConnector;
