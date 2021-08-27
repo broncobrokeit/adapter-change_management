@@ -151,35 +151,9 @@ class ServiceNowAdapter extends EventEmitter {
      * Note how the object was instantiated in the constructor().
      * get() takes a callback function.
      */
-    let callbackData = null;
-    let callbackError = null;
-    this.connector.get((data, error) => {
-        if (error) {
-            console.error('Error present.');
-            callbackError = error;
-        } else {
-            console.log('Response OK.');
-            let jsonResults = JSON.parse(data.body);
-            console.log(Object.prototype.toString.call(jsonResults));
-            var returnTickets = new Array()
-            for (var jsonResult of jsonResults.result) {
-                let changeTicket = {
-                    change_ticket_number: jsonResult.number,
-                    active: jsonResult.active,
-                    priority: jsonResult.priority,
-                    description: jsonResult.description,
-                    work_start: jsonResult.work_start,
-                    work_end: jsonResult.work_end,
-                    change_ticket_key: jsonResult.sys_id
-                }
-                console.log(changeTicket)
-                returnTickets.push(changeTicket)
-            }
-            callbackData = returnTickets
-        }
-        return callback(callbackData, callbackError);
-    });
+     this.connector.get(callback);
   }
+
   /**
    * @memberof ServiceNowAdapter
    * @method postRecord
@@ -196,32 +170,8 @@ class ServiceNowAdapter extends EventEmitter {
      * Note how the object was instantiated in the constructor().
      * post() takes a callback function.
      */
-    let callbackData = null;
-    let callbackError = null;
-    this.connector.post((data, error) => {
-        if (error) {
-            console.error('Error present.');
-            callbackError = error;
-        } else {
-            console.log('Response OK.');
-            //console.log(JSON.parse(data.body))
-            let jsonResult = JSON.parse(data.body);
-            console.log(Object.prototype.toString.call(jsonResult));
-            let changeTicket = {
-                    change_ticket_number: jsonResult.number,
-                    active: jsonResult.active,
-                    priority: jsonResult.priority,
-                    description: jsonResult.description,
-                    work_start: jsonResult.work_start,
-                    work_end: jsonResult.work_end,
-                    change_ticket_key: jsonResult.sys_id
-                }
-            console.log(changeTicket);
-            callbackData = changeTicket;
-            } 
-        return callback(callbackData, callbackError);
-       })
-    }
+     this.connector.post(callback);
+  }
 }
 
 module.exports = ServiceNowAdapter;
